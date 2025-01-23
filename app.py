@@ -1,7 +1,6 @@
 import streamlit as st
 import tensorflow as tf
 import numpy as np
-import streamlit as st
 import gdown
 import tensorflow as tf
 
@@ -9,9 +8,9 @@ import tensorflow as tf
 @st.cache_resource
 def load_model():
     # Google Drive file ID for the `.keras` file
-    file_id = "YOUR_GOOGLE_DRIVE_FILE_ID"  # Replace with your file ID
+    file_id = "1BRBQX4bC3acTwlAwbWqzQ64YzpT5KMrz"  # Replace with your file ID
     url = f"https://drive.google.com/uc?id=1BRBQX4bC3acTwlAwbWqzQ64YzpT5KMrz"
-    model_path = "trained_plant_disease_model.keras"
+    model_path = "trained_plant_disease_model.h5"
 
     # Download the model file
     gdown.download(url, model_path, quiet=False)
@@ -19,33 +18,25 @@ def load_model():
     # Load the model using TensorFlow
     return tf.keras.models.load_model(model_path)
 
-# Load the model
+# Load the model once
 model = load_model()
 
-# Streamlit app interface
-st.title("Plant Disease Detection")
-st.write("Upload an image to predict plant diseases.")
-
-# File uploader
-uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
-if uploaded_file:
-    st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
-    # Add your preprocessing and prediction logic here
-    st.write("Prediction will appear here.")
-
-#Tensorflow Model Prediction
+# TensorFlow Model Prediction
 def model_prediction(test_image):
-    model  = tf.keras.models.load_model('trained_model.h5')
-    image = tf.keras.preprocessing.image.load_img(test_image,target_size=(128, 128))
+    # Preprocess the image
+    image = tf.keras.preprocessing.image.load_img(test_image, target_size=(128, 128))
     input_arr = tf.keras.preprocessing.image.img_to_array(image)
-    input_arr = np.array([input_arr]) #Convert single image to a batch
+    input_arr = np.array([input_arr])  # Convert single image to a batch
+    
+    # Use the preloaded model for prediction
     prediction = model.predict(input_arr)
     result_index = np.argmax(prediction)
     return result_index
 
-#Sidebar
+# Sidebar
 st.sidebar.title("Dashboard")
-app_mode = st.sidebar.selectbox("Select Page",["Home","About","Disease Recognition"])
+app_mode = st.sidebar.selectbox("Select Page", ["Home", "About", "Disease Recognition"])
+
 
 #Home Page
 if(app_mode=="Home"):
