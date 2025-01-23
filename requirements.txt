@@ -7,4 +7,3 @@ pandas==2.1.0
 streamlit
 librosa==0.10.1
 gdown==5.2.0
-python==3.10.16
