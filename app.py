@@ -1,6 +1,37 @@
 import streamlit as st
 import tensorflow as tf
 import numpy as np
+import streamlit as st
+import gdown
+import tensorflow as tf
+
+# Function to load the model
+@st.cache_resource
+def load_model():
+    # Google Drive file ID for the `.keras` file
+    file_id = "YOUR_GOOGLE_DRIVE_FILE_ID"  # Replace with your file ID
+    url = f"https://drive.google.com/uc?id=1BRBQX4bC3acTwlAwbWqzQ64YzpT5KMrz"
+    model_path = "trained_plant_disease_model.keras"
+
+    # Download the model file
+    gdown.download(url, model_path, quiet=False)
+
+    # Load the model using TensorFlow
+    return tf.keras.models.load_model(model_path)
+
+# Load the model
+model = load_model()
+
+# Streamlit app interface
+st.title("Plant Disease Detection")
+st.write("Upload an image to predict plant diseases.")
+
+# File uploader
+uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+if uploaded_file:
+    st.image(uploaded_file, caption="Uploaded Image", use_column_width=True)
+    # Add your preprocessing and prediction logic here
+    st.write("Prediction will appear here.")
 
 #Tensorflow Model Prediction
 def model_prediction(test_image):
