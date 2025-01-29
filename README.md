@@ -2,6 +2,7 @@
 A Deep Learning-Powered Image Analyzer to Identify Plant Diseases from Leaf Images.
 🚀 Overview
 This project utilizes a Convolutional Neural Network (CNN) to analyze images of plant leaves and detect potential diseases. By leveraging deep learning techniques, the model provides fast and accurate predictions to help farmers and researchers monitor plant health effectively.
+link:https://plantdiseaserecognizer-jzekrenc97vzfddv3fa2fd.streamlit.app/
 
 🛠 Features
 Disease Detection: Identify a variety of plant diseases from leaf images.
