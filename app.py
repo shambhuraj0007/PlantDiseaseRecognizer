@@ -2,129 +2,151 @@ import streamlit as st
 import tensorflow as tf
 import numpy as np
 import gdown
-import tensorflow as tf
+import google.generativeai as genai
+
+# Configure Gemini API Key
+genai.configure(api_key="AIzaSyA07RIpDDtDlsEF7BxoTAmCYceXHPycdAk") 
 
 # Function to load the model
 @st.cache_resource
-def load_model():
-    # Google Drive file ID for the `.keras` file
-    file_id = "1BRBQX4bC3acTwlAwbWqzQ64YzpT5KMrz"  # Replace with your file ID
-    url = f"https://drive.google.com/uc?id=1BRBQX4bC3acTwlAwbWqzQ64YzpT5KMrz"
-    model_path = "trained_plant_disease_model.h5"
+def load_model(plant_type):
+    if plant_type == "Other":
+        file_id = "1BRBQX4bC3acTwlAwbWqzQ64YzpT5KMrz"  # Replace with your file ID
+        url = f"https://drive.google.com/uc?id={file_id}"
+        model_path = "trained_model.h5"
+        gdown.download(url, model_path, quiet=False)
+    else:
+        model_path = f"{plant_type.lower()}_model.h5"
+    
+    try:
+        return tf.keras.models.load_model(model_path, compile=False)
+    except Exception as e:
+        st.error(f"Error loading model: {e}")
+        return None
 
-    # Download the model file
-    gdown.download(url, model_path, quiet=False)
-
-    # Load the model using TensorFlow
-    return tf.keras.models.load_model(model_path)
-
-# Load the model once
-model = load_model()
-
-# TensorFlow Model Prediction
-def model_prediction(test_image):
-    # Preprocess the image
+# Function for prediction
+def model_prediction(model, test_image):
     image = tf.keras.preprocessing.image.load_img(test_image, target_size=(128, 128))
     input_arr = tf.keras.preprocessing.image.img_to_array(image)
-    input_arr = np.array([input_arr])  # Convert single image to a batch
-    
-    # Use the preloaded model for prediction
+    input_arr = np.expand_dims(input_arr, axis=0)
     prediction = model.predict(input_arr)
-    result_index = np.argmax(prediction)
-    return result_index
+    return np.argmax(prediction)
 
-# Sidebar
-st.sidebar.title("Dashboard")
+# Function to get disease info
+def get_disease_info(disease_name):
+    prompt = f"""
+    Provide detailed information about the plant disease '{disease_name}', including:
+    - Symptoms
+    - Causes
+    - Best Treatments & Prevention Methods
+    - Impact on Crops
+    - Natural Remedies
+    """
+    response = genai.GenerativeModel("gemini-pro").generate_content(prompt)
+    return response.text
+
+# Spotify-like UI Styling
+st.markdown("""
+<style>
+    body {
+        background-color: #121212;
+        color: #ffffff;
+        font-family: 'Arial', sans-serif;
+    }
+    .header {
+        font-size: 36px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 20px;
+        color: #1DB954;
+    }
+    .stButton>button {
+        background-color: #1DB954;
+        color: #ffffff;
+        font-size: 16px;
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+    }
+    .stButton>button:hover {
+        background-color: #1ed760;
+    }
+    .stImage>img {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .text-box {
+        background-color: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 20px;
+        font-size: 18px;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Sidebar Navigation
+st.sidebar.title("🎛️ Dashboard")
 app_mode = st.sidebar.selectbox("Select Page", ["Home", "About", "Disease Recognition"])
 
-
-#Home Page
-if(app_mode=="Home"):
-    st.header("PLANT DISEASE RECOGNITION SYSTEM")
-    image_path = "home_page.jpg"
-    st.image(image_path,use_column_width=True)
+# Home Page
+if app_mode == "Home":
+    st.markdown('<div class="header">🔍 PLANT DISEASE RECOGNITION SYSTEM 🌿</div>', unsafe_allow_html=True)
+    st.image("home_page.jpg", use_container_width=True)
     st.markdown("""
-    Welcome to the Plant Disease Recognition System! 🌿🔍
-    
-    Our mission is to help in identifying plant diseases efficiently. Upload an image of a plant, and our system will analyze it to detect any signs of diseases. Together, let's protect our crops and ensure a healthier harvest!
+    <div class="text-box">
+    **🌿 Welcome to the Plant Disease Recognition System!**
+    Our **AI-powered system** helps in identifying plant diseases efficiently. Simply **upload an image**, and our model will analyze it within seconds.
+    </div>
+    """, unsafe_allow_html=True)
 
-    ### How It Works
-    1. **Upload Image:** Go to the **Disease Recognition** page and upload an image of a plant with suspected diseases.
-    2. **Analysis:** Our system will process the image using advanced algorithms to identify potential diseases.
-    3. **Results:** View the results and recommendations for further action.
-
-    ### Why Choose Us?
-    - **Accuracy:** Our system utilizes state-of-the-art machine learning techniques for accurate disease detection.
-    - **User-Friendly:** Simple and intuitive interface for seamless user experience.
-    - **Fast and Efficient:** Receive results in seconds, allowing for quick decision-making.
-
-    ### Get Started
-    Click on the **Disease Recognition** page in the sidebar to upload an image and experience the power of our Plant Disease Recognition System!
-
-    ### About Us
-    Learn more about the project, our team, and our goals on the **About** page.
-""")
-
-#About Page
-elif(app_mode=="About"):
-    st.header("About")
+# About Page
+elif app_mode == "About":
+    st.markdown('<div class="header">📖 About</div>', unsafe_allow_html=True)
     st.markdown("""
-    #### About Dataset
-    This dataset is recreated using offline augmentation from the original dataset. The original dataset can be found on this github repo. This dataset consists of about 87K rgb images of healthy and diseased crop leaves which is categorized into 38 different classes. The total dataset is divided into 80/20 ratio of training and validation set preserving the directory structure. A new directory containing 33 test images is created later for prediction purpose.
-    #### Content
-    1. Train (70295 images)
-    2. Valid (17572 image)
-    3. Test (33 images)
-""")
-    
-#Prediction Page
-# Prediction Page
+    <div class="text-box">
+    **🌿 About the Dataset**
+    This dataset consists of **87,000+ high-resolution images** of healthy and diseased plants, categorized into **38 classes**.
+    </div>
+    """, unsafe_allow_html=True)
+
+# Disease Recognition Page
 elif app_mode == "Disease Recognition":
-    st.header("Disease Recognition")
-
-    # Toggle Camera Option
-    use_camera = st.checkbox("📷 Use Camera", key="toggle_camera")
-
-    # Camera Input
-    camera_image = None
-    if use_camera:
-        st.subheader("Capture Image")
-        camera_image = st.camera_input("Take a picture:", key="camera_input")
-
-    # File Uploader
-    st.subheader("📁 Upload Image")
-    test_image = st.file_uploader("Choose an image:", key="file_uploader")
-
-    # Determine the selected image (prioritize camera image if both exist)
+    st.markdown('<div class="header">🔬 Disease Recognition</div>', unsafe_allow_html=True)
+    plant_type = st.selectbox("Select Plant Type", ["Other"])
+    use_camera = st.checkbox("📷 Use Camera")
+    camera_image = st.camera_input("Take a picture:") if use_camera else None
+    test_image = st.file_uploader("📁 Upload Image")
     selected_image = camera_image if camera_image is not None else test_image
 
-    # Display the selected image
-    if selected_image is not None:
-        st.image(selected_image, use_column_width=True, caption="Selected Image")
-
-    # Predict Button with Unique Key
-    if st.button("Predict", key="predict_button"):
-        if selected_image is not None:
+    if selected_image:
+        st.image(selected_image, use_container_width=True, caption="📷 Selected Image")
+        if st.button("🔍 Predict Disease"):
             with st.spinner("Analyzing the image..."):
-                st.write("Our Prediction")
-                result_index = model_prediction(selected_image)
-                
-                # Define Class Names
-                class_name = [
-                    'Apple___Apple_scab', 'Apple___Black_rot', 'Apple___Cedar_apple_rust', 'Apple___healthy',
-                    'Blueberry___healthy', 'Cherry_(including_sour)___Powdery_mildew', 
-                    'Cherry_(including_sour)___healthy', 'Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot',
-                    'Corn_(maize)___Common_rust_', 'Corn_(maize)___Northern_Leaf_Blight', 'Corn_(maize)___healthy',
-                    'Grape___Black_rot', 'Grape___Esca_(Black_Measles)', 'Grape___Leaf_blight_(Isariopsis_Leaf_Spot)',
-                    'Grape___healthy', 'Orange___Haunglongbing_(Citrus_greening)', 'Peach___Bacterial_spot',
-                    'Peach___healthy', 'Pepper,_bell___Bacterial_spot', 'Pepper,_bell___healthy', 'Potato___Early_blight',
-                    'Potato___Late_blight', 'Potato___healthy', 'Raspberry___healthy', 'Soybean___healthy',
-                    'Squash___Powdery_mildew', 'Strawberry___Leaf_scorch', 'Strawberry___healthy', 'Tomato___Bacterial_spot',
-                    'Tomato___Early_blight', 'Tomato___Late_blight', 'Tomato___Leaf_Mold', 'Tomato___Septoria_leaf_spot',
-                    'Tomato___Spider_mites Two-spotted_spider_mite', 'Tomato___Target_Spot', 
-                    'Tomato___Tomato_Yellow_Leaf_Curl_Virus', 'Tomato___Tomato_mosaic_virus', 'Tomato___healthy'
-                ]
-
-                st.success(f"It can be a.. {class_name[result_index]}")
-        else:
-            st.warning("Please upload or capture an image to proceed.")
+                model = load_model(plant_type)
+                if model:
+                    result_index = model_prediction(model, selected_image)
+                    class_name = [
+        'Apple__Apple_scab', 'Apple_Black_rot', 'Apple_Cedar_apple_rust', 'Apple__healthy',
+        'Blueberry__healthy', 'Cherry(including_sour)___Powdery_mildew', 
+        'Cherry_(including_sour)__healthy', 'Corn(maize)___Cercospora_leaf_spot Gray_leaf_spot',
+        'Corn_(maize)__Common_rust', 'Corn_(maize)__Northern_Leaf_Blight', 'Corn(maize)___healthy',
+        'Grape__Black_rot', 'Grape_Esca(Black_Measles)', 'Grape__Leaf_blight(Isariopsis_Leaf_Spot)',
+        'Grape__healthy', 'Orange_Haunglongbing(Citrus_greening)', 'Peach___Bacterial_spot',
+        'Peach__healthy', 'Pepper,_bell_Bacterial_spot', 'Pepper,_bell_healthy', 'Potato__Early_blight',
+        'Potato__Late_blight', 'Potato_healthy', 'Raspberry_healthy', 'Soybean__healthy',
+        'Squash__Powdery_mildew', 'Strawberry_Leaf_scorch', 'Strawberry_healthy', 'Tomato__Bacterial_spot',
+        'Tomato__Early_blight', 'Tomato_Late_blight', 'Tomato_Leaf_Mold', 'Tomato__Septoria_leaf_spot',
+        'Tomato__Spider_mites Two-spotted_spider_mite', 'Tomato__Target_Spot', 
+        'Tomato__Tomato_Yellow_Leaf_Curl_Virus', 'Tomato_Tomato_mosaic_virus', 'Tomato__healthy'
+    ]
+                    disease_name = class_name[result_index]
+                    st.success(f"🌱 Identified Disease: **{disease_name}**")
+                    st.subheader("📖 Disease Information & Treatment")
+                    disease_info = get_disease_info(disease_name)
+                    st.markdown(f"<div class='text-box'>{disease_info}</div>", unsafe_allow_html=True)
+                else:
+                    st.error("Failed to load the model. Please check the plant type and try again.")
+    else:
+        st.warning("📌 Please upload or capture an image to proceed.")
