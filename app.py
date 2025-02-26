@@ -127,7 +127,7 @@ elif app_mode == "Disease Recognition":
     selected_image = camera_image if camera_image is not None else test_image
 
     if selected_image:
-        st.image(selected_image, use_container_width=True, caption="📷 Selected Image")
+        st.image(selected_image, use_column_width=True, caption="📷 Selected Image")
         if st.button("🔍 Predict Disease"):
             with st.spinner("Analyzing the image..."):
                 model = load_model(plant_type)
