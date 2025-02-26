@@ -11,7 +11,7 @@ genai.configure(api_key="AIzaSyA07RIpDDtDlsEF7BxoTAmCYceXHPycdAk")
 @st.cache_resource
 def load_model(plant_type):
     if plant_type == "Other":
-        file_id = "1BRBQX4bC3acTwlAwbWqzQ64YzpT5KMrz"  # Replace with your file ID
+        file_id = "1BRBQX4bC3acTwlAwbWqzQ64YzpT5KMrz"  
         url = f"https://drive.google.com/uc?id={file_id}"
         model_path = "trained_model.h5"
         gdown.download(url, model_path, quiet=False)
