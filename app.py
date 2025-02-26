@@ -97,7 +97,7 @@ if app_mode == "Home":
     image_path = os.path.join(os.path.dirname(__file__), "home_page.jpg")
 
     if os.path.exists(image_path):
-        st.image(image_path, use_container_width=True)
+        st.image(image_path, use_column_width=True)
     else:
         st.error(f"Image not found: {image_path}")
     st.markdown("""
