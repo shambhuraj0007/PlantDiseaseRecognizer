@@ -1,6 +1,7 @@
 import streamlit as st
 import tensorflow as tf
 import numpy as np
+import os
 import gdown
 import google.generativeai as genai
 
@@ -93,7 +94,12 @@ app_mode = st.sidebar.selectbox("Select Page", ["Home", "About", "Disease Recogn
 # Home Page
 if app_mode == "Home":
     st.markdown('<div class="header">🔍 PLANT DISEASE RECOGNITION SYSTEM 🌿</div>', unsafe_allow_html=True)
-    st.image("home_page.jpg", use_container_width=True)
+    image_path = os.path.join(os.path.dirname(__file__), "home_page.jpg")
+
+    if os.path.exists(image_path):
+        st.image(image_path, use_container_width=True)
+    else:
+        st.error(f"Image not found: {image_path}")
     st.markdown("""
     <div class="text-box">
     **🌿 Welcome to the Plant Disease Recognition System!**
