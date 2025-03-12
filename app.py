@@ -1,3 +1,4 @@
+
 import streamlit as st
 import tensorflow as tf
 import numpy as np
@@ -43,8 +44,14 @@ def get_disease_info(disease_name):
     - Impact on Crops
     - Natural Remedies
     """
-    response = genai.GenerativeModel("gemini-pro").generate_content(prompt)
-    return response.text
+    try:
+        response = genai.GenerativeModel("gemini-pro").generate_content(prompt)
+        return response.text
+    except Exception as e:
+        st.warning("⚠️ Unable to fetch detailed disease information at the moment. Please try again later.")
+        print(f"Error calling Gemini API: {e}")  # For debugging in terminal/logs
+        return "Detailed disease information could not be retrieved due to an API error."
+        
 
 # Spotify-like UI Styling
 st.markdown("""
