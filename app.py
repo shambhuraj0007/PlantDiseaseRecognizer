@@ -43,6 +43,7 @@ def get_disease_info(disease_name):
     - Best Treatments & Prevention Methods
     - Impact on Crops
     - Natural Remedies
+    don't say anything extra suggest in information in  a well structured manner 
     """
     try:
         response = genai.GenerativeModel("gemini-2.0-flash").generate_content(prompt)
