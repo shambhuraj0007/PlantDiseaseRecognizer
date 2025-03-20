@@ -7,7 +7,7 @@ import gdown
 import google.generativeai as genai
 
 # Configure Gemini API Key
-genai.configure(api_key="AIzaSyA07RIpDDtDlsEF7BxoTAmCYceXHPycdAk") 
+genai.configure(api_key="AIzaSyAFVkuNLacQo8Z1ihcd3e6dHq3PICOvTRg") 
 
 # Function to load the model
 @st.cache_resource
