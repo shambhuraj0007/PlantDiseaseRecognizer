@@ -4,12 +4,12 @@ numpy==1.23.5
 matplotlib==3.7.2
 seaborn==0.13.0
 pandas==2.1.0
-streamlit==1.29.0
+streamlit==1.22.0  # Changed to older version for compatibility
 librosa==0.10.1
 gdown==5.2.0
 Pillow==10.0.0
 google-generativeai==0.3.1
-protobuf==3.19.6
+protobuf==3.19.6  # Fixed version compatible with both TF and Streamlit
 python-dotenv==1.0.0
 pathlib==1.0.1
 SpeechRecognition==3.10.1
