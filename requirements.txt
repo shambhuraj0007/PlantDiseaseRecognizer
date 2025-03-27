@@ -9,9 +9,9 @@ librosa==0.10.1
 gdown==5.2.0
 Pillow==10.0.0
 google-generativeai==0.3.1
-protobuf==3.20.0
+protobuf==3.19.6
 python-dotenv==1.0.0
 pathlib==1.0.1
-pip==23.3.1
-setuptools==68.0.0
-wheel==0.41.0
+SpeechRecognition==3.10.1
+gTTS==2.5.1
+googletrans==3.1.0a0
