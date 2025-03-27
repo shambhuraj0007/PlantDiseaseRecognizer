@@ -1,0 +1,142 @@
+/* Sidebar Container */
+.css-1d391kg, .css-1q1n0ol {
+    background: rgba(255, 255, 255, 0.05) !important;
+    backdrop-filter: blur(10px) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+    font-size: 1.5rem;
+    color: #ffffff;
+    text-align: center;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, rgba(109, 213, 237, 0.2), rgba(33, 147, 176, 0.2));
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Sidebar Buttons */
+.stButton > button {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 10px !important;
+    padding: 0.75rem 1rem !important;
+    margin: 0.5rem 0 !important;
+    transition: all 0.3s ease !important;
+    backdrop-filter: blur(5px) !important;
+    font-size: 1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    animation: slideIn 0.5s ease-in-out;
+}
+
+.stButton > button:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stButton > button:active {
+    transform: scale(0.98);
+}
+
+/* Active Button State */
+.stButton > button[data-active="true"] {
+    background: linear-gradient(135deg, #6dd5ed, #2193b0) !important;
+    color: white !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Custom Scrollbar */
+.css-1d391kg::-webkit-scrollbar {
+    width: 6px;
+    background: transparent;
+}
+
+.css-1d391kg::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.css-1d391kg::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Hide default Streamlit elements */
+.css-1d391kg .css-1vq4p4l {
+    padding: 0 !important;
+}
+
+.css-1d391kg .css-h5rgaw {
+    visibility: hidden;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .css-1d391kg {
+        width: 100% !important;
+        max-width: 100% !important;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .css-1d391kg.show {
+        transform: translateX(0);
+    }
+
+    .stButton > button {
+        padding: 0.5rem !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+/* Button Hover Animation */
+.stButton > button::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(135deg, #6dd5ed, #2193b0);
+    transition: width 0.3s ease;
+}
+
+.stButton > button:hover::after {
+    width: 100%;
+}
+
+/* Icon Animation */
+.stButton > button:hover svg,
+.stButton > button:hover img {
+    transform: scale(1.2);
+    transition: transform 0.3s ease;
+} 

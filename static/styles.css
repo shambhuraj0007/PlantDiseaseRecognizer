@@ -1,0 +1,168 @@
+body {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: 'Arial', sans-serif;
+}
+
+.header {
+    font-size: 36px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #1DB954;
+}
+
+.stButton>button {
+    background-color: #1DB954;
+    color: #ffffff;
+    font-size: 16px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+.stButton>button:hover {
+    background-color: #1ed760;
+}
+
+.stImage>img {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.text-box {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+.about-section {
+    padding: 20px;
+    border-radius: 15px;
+    background: rgba(29, 185, 84, 0.1);
+    margin: 20px 0;
+    transition: all 0.3s ease;
+}
+
+.about-section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(29, 185, 84, 0.2);
+}
+
+.stats-box {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    margin: 10px;
+}
+
+.stat-number {
+    font-size: 2.5em;
+    color: #1DB954;
+    font-weight: bold;
+}
+
+.stat-label {
+    font-size: 1.2em;
+    color: #ffffff;
+}
+
+.team-member {
+    text-align: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    margin: 10px;
+    transition: all 0.3s ease;
+}
+
+.team-member:hover {
+    transform: scale(1.05);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 1s ease-in;
+}
+
+.feedback-card {
+    background: rgba(29, 185, 84, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin: 10px 0;
+    transition: all 0.3s ease;
+}
+
+.feedback-card:hover {
+    transform: translateX(10px);
+    background: rgba(29, 185, 84, 0.2);
+}
+
+.support-item {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+.support-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.confidence-meter {
+    width: 100%;
+    height: 20px;
+    background-color: #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.confidence-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #1DB954, #1ed760);
+    transition: width 0.5s ease-in-out;
+}
+
+/* Additional styles for form elements */
+input, select, textarea {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px;
+    border-radius: 5px;
+}
+
+/* Sidebar styling */
+.sidebar .sidebar-content {
+    background-color: #040404;
+}
+
+/* Tab styling */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 8px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    background-color: rgba(29, 185, 84, 0.1);
+    border-radius: 4px;
+    padding: 8px 16px;
+    color: white;
+}
+
+.stTabs [data-baseweb="tab"]:hover {
+    background-color: rgba(29, 185, 84, 0.2);
+}
+
+.stTabs [data-baseweb="tab"][aria-selected="true"] {
+    background-color: #1DB954;
+} 

@@ -1,0 +1,324 @@
+/* Hero Section */
+.hero-section {
+    position: relative;
+    min-height: 600px;
+    padding: 40px;
+    border-radius: 30px;
+    
+    overflow: hidden;
+    margin: -20px -20px 40px -20px;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8cGxhbnR8fHx8fHwxNjI5MjY0NjIw&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=1080');
+    background-size: cover;
+    background-position: center;
+    opacity: 0.1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.welcome-text {
+    font-size: 1.2em;
+    color: #a7f3d0;
+    margin-bottom: 10px;
+    opacity: 0;
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.main-title {
+    font-size: 4em;
+    font-weight: 800;
+    color: white;
+    margin: 10px 0;
+    opacity: 0;
+    animation: fadeInUp 0.6s ease 0.2s forwards;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.subtitle {
+    font-size: 1.8em;
+    color: #a7f3d0;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeInUp 0.6s ease 0.4s forwards;
+}
+
+.description {
+    font-size: 1.2em;
+    color: #e2e8f0;
+    margin-bottom: 40px;
+    line-height: 1.6;
+    opacity: 0;
+    animation: fadeInUp 0.6s ease 0.6s forwards;
+}
+
+.cta-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    opacity: 0;
+    animation: fadeInUp 0.6s ease 0.8s forwards;
+}
+
+.primary-button, .secondary-button {
+    padding: 15px 30px;
+    border-radius: 50px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+}
+
+.primary-button {
+    background: white;
+    color: #1DB954;
+}
+
+.secondary-button {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    backdrop-filter: blur(10px);
+}
+
+.primary-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.secondary-button:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-3px);
+}
+
+.button-icon {
+    font-size: 1.2em;
+}
+
+/* Feature Highlights */
+.hero-cards {
+    position: relative;
+    z-index: 2;
+    margin-top: 40px;
+}
+
+.feature-highlight {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.highlight-card {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border-radius: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.highlight-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255,255,255,0.2);
+}
+
+.highlight-icon {
+    font-size: 2em;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.highlight-text {
+    color: white;
+    font-weight: 500;
+}
+
+/* Quick Actions Section */
+.quick-actions {
+    padding: 40px 0;
+}
+
+.action-title {
+    font-size: 2em;
+    color: #1DB954;
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: 600;
+}
+
+.action-cards {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.action-card {
+    background: #1a1a1a;
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    flex: 1;
+    min-width: 200px;
+    max-width: 300px;
+}
+
+.action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(29,185,84,0.1);
+}
+
+.action-icon {
+    font-size: 2.5em;
+    margin-bottom: 15px;
+}
+
+.action-text {
+    font-size: 1.2em;
+    color: #1DB954;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.action-description {
+    color: #888;
+    font-size: 0.9em;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 20px;
+    }
+    
+    .main-title {
+        font-size: 2.5em;
+    }
+    
+    .subtitle {
+        font-size: 1.4em;
+    }
+    
+    .cta-container {
+        flex-direction: column;
+    }
+    
+    .action-cards {
+        flex-direction: column;
+    }
+    
+    .action-card {
+        max-width: none;
+    }
+}
+
+/* Step Cards */
+.step-card {
+    background: rgba(29, 185, 84, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    margin: 10px;
+    transition: all 0.3s ease;
+}
+
+.step-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(29, 185, 84, 0.2);
+}
+
+.step-icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+}
+
+/* Feature Cards */
+.feature-card {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin: 10px 0;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateX(10px);
+    background: rgba(29, 185, 84, 0.2);
+}
+
+/* Statistics Cards */
+.stat-card {
+    text-align: center;
+    padding: 20px;
+    background: rgba(29, 185, 84, 0.1);
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: scale(1.05);
+}
+
+.counter {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #1DB954;
+}
+
+/* Section Titles */
+.section-title {
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+    margin: 40px 0 20px;
+    color: #1DB954;
+}
+
+/* Particles Background */
+.particles-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,...');
+    opacity: 0.1;
+    animation: float 20s linear infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0); }
+}
