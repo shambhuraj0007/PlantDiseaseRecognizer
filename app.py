@@ -1,16 +1,10 @@
+
 import streamlit as st
 import tensorflow as tf
 import numpy as np
 import os
 import gdown
 import google.generativeai as genai
-import speech_recognition as sr
-from gtts import gTTS
-from googletrans import Translator
-import tempfile
-import whisper
-from io import BytesIO
-import base64
 
 # Configure Gemini API Key
 genai.configure(api_key="AIzaSyAFVkuNLacQo8Z1ihcd3e6dHq3PICOvTRg") 
@@ -22,11 +16,7 @@ def load_model(plant_type):
         file_id = "1BRBQX4bC3acTwlAwbWqzQ64YzpT5KMrz"  
         url = f"https://drive.google.com/uc?id={file_id}"
         model_path = "trained_model.h5"
-        try:
-            gdown.download(url, model_path, quiet=False)
-        except Exception as e:
-            st.error(f"Error downloading model: {e}")
-            return None
+        gdown.download(url, model_path, quiet=False)
     else:
         model_path = f"{plant_type.lower()}_model.h5"
     
@@ -36,57 +26,16 @@ def load_model(plant_type):
         st.error(f"Error loading model: {e}")
         return None
 
-# Function for prediction with improved error handling
+# Function for prediction
 def model_prediction(model, test_image):
-    try:
-        image = tf.keras.preprocessing.image.load_img(test_image, target_size=(128, 128))
-        input_arr = tf.keras.preprocessing.image.img_to_array(image)
-        input_arr = np.expand_dims(input_arr, axis=0)
-        prediction = model.predict(input_arr)
-        return np.argmax(prediction)
-    except Exception as e:
-        st.error(f"Error processing image: {e}")
-        return None
+    image = tf.keras.preprocessing.image.load_img(test_image, target_size=(128, 128))
+    input_arr = tf.keras.preprocessing.image.img_to_array(image)
+    input_arr = np.expand_dims(input_arr, axis=0)
+    prediction = model.predict(input_arr)
+    return np.argmax(prediction)
 
-# Improved speech-to-text function
-def process_speech_input():
-    try:
-        r = sr.Recognizer()
-        with sr.Microphone() as source:
-            st.write("🎤 Listening...")
-            audio = r.listen(source, timeout=5)  # Add timeout
-            try:
-                text = r.recognize_google(audio)
-                return text
-            except sr.UnknownValueError:
-                st.error("Could not understand audio")
-            except sr.RequestError as e:
-                st.error(f"Could not request results; {e}")
-    except Exception as e:
-        st.error(f"Microphone not available: {e}")
-    return None
-
-# Cached text-to-speech function
-@st.cache_data
-def text_to_speech(text, language='en'):
-    try:
-        tts = gTTS(text=text, lang=language)
-        fp = BytesIO()
-        tts.write_to_fp(fp)
-        return fp.getvalue()
-    except Exception as e:
-        st.error(f"Error generating speech: {e}")
-        return None
-
-# Helper function to create audio player HTML
-def get_audio_player_html(audio_data):
-    if audio_data:
-        b64 = base64.b64encode(audio_data).decode()
-        return f'<audio controls><source src="data:audio/mp3;base64,{b64}" type="audio/mp3"></audio>'
-    return ""
-
-# Improved get_disease_info function with translation support
-def get_disease_info(disease_name, target_language='en'):
+# Function to get disease info
+def get_disease_info(disease_name):
     prompt = f"""
     Provide detailed information about the plant disease '{disease_name}', including:
     - Symptoms
@@ -98,23 +47,12 @@ def get_disease_info(disease_name, target_language='en'):
     """
     try:
         response = genai.GenerativeModel("gemini-2.0-flash").generate_content(prompt)
-        text = response.text
-        
-        if target_language != 'en':
-            try:
-                translator = Translator()
-                translated = translator.translate(text, dest=target_language)
-                if translated and translated.text:
-                    text = translated.text
-                else:
-                    st.warning(f"Translation failed, showing English content")
-            except Exception as e:
-                st.warning(f"Translation error: {e}. Showing English content")
-        return text
+        return response.text
     except Exception as e:
-        st.warning("⚠️ Unable to fetch or translate disease information.")
-        print(f"Error: {e}")
-        return "Information could not be retrieved."
+        st.warning("⚠️ Unable to fetch detailed disease information at the moment. Please try again later.")
+        print(f"Error calling Gemini API: {e}")  # For debugging in terminal/logs
+        return "Detailed disease information could not be retrieved due to an API error."
+        
 
 # Spotify-like UI Styling
 st.markdown("""
@@ -190,32 +128,7 @@ elif app_mode == "About":
 # Disease Recognition Page
 elif app_mode == "Disease Recognition":
     st.markdown('<div class="header">🔬 Disease Recognition</div>', unsafe_allow_html=True)
-    
-    # Initialize session state for language
-    if 'language' not in st.session_state:
-        st.session_state.language = 'English'
-    
-    # Language selection
-    languages = {
-        'English': 'en', 'Spanish': 'es', 'French': 'fr', 
-        'German': 'de', 'Italian': 'it', 'Hindi': 'hi'
-    }
-    selected_language = st.selectbox("🌍 Select Language", 
-                                   list(languages.keys()),
-                                   key='language')
-    lang_code = languages[selected_language]
-    
-    # Plant type selection with voice input
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        plant_type = st.selectbox("Select Plant Type", ["Other"])
-    with col2:
-        if st.button("🎤 Voice Input"):
-            plant_name = process_speech_input()
-            if plant_name:
-                st.write(f"Heard: {plant_name}")
-                
-    # Image upload section
+    plant_type = st.selectbox("Select Plant Type", ["Other"])
     use_camera = st.checkbox("📷 Use Camera")
     camera_image = st.camera_input("Take a picture:") if use_camera else None
     test_image = st.file_uploader("📁 Upload Image")
@@ -224,34 +137,30 @@ elif app_mode == "Disease Recognition":
     if selected_image:
         st.image(selected_image, use_column_width=True, caption="📷 Selected Image")
         if st.button("🔍 Predict Disease"):
-            # Load model with status indicator
-            with st.spinner("Loading model..."):
+            with st.spinner("Analyzing the image..."):
                 model = load_model(plant_type)
-            
-            if model:
-                with st.spinner("Analyzing the image..."):
+                if model:
                     result_index = model_prediction(model, selected_image)
-                    if result_index is not None:
-                        disease_name = class_name[result_index]
-                        st.success(f"🌱 Identified Disease: **{disease_name}**")
-                        
-                        # Get disease information in selected language
-                        st.subheader("📖 Disease Information & Treatment")
-                        with st.spinner("Fetching disease information..."):
-                            disease_info = get_disease_info(disease_name, lang_code)
-                            st.markdown(f"<div class='text-box'>{disease_info}</div>", 
-                                      unsafe_allow_html=True)
-                        
-                        # Text-to-speech output
-                        with st.spinner("Generating audio..."):
-                            audio_data = text_to_speech(disease_info, lang_code)
-                            if audio_data:
-                                st.markdown("🔊 Listen to the information:")
-                                st.markdown(get_audio_player_html(audio_data), 
-                                          unsafe_allow_html=True)
-                    else:
-                        st.error("Failed to process the image. Please try again.")
-            else:
-                st.error("Failed to load the model. Please check the plant type and try again.")
+                    class_name = [
+        'Apple__Apple_scab', 'Apple_Black_rot', 'Apple_Cedar_apple_rust', 'Apple__healthy',
+        'Blueberry__healthy', 'Cherry(including_sour)___Powdery_mildew', 
+        'Cherry_(including_sour)__healthy', 'Corn(maize)___Cercospora_leaf_spot Gray_leaf_spot',
+        'Corn_(maize)__Common_rust', 'Corn_(maize)__Northern_Leaf_Blight', 'Corn(maize)___healthy',
+        'Grape__Black_rot', 'Grape_Esca(Black_Measles)', 'Grape__Leaf_blight(Isariopsis_Leaf_Spot)',
+        'Grape__healthy', 'Orange_Haunglongbing(Citrus_greening)', 'Peach___Bacterial_spot',
+        'Peach__healthy', 'Pepper,_bell_Bacterial_spot', 'Pepper,_bell_healthy', 'Potato__Early_blight',
+        'Potato__Late_blight', 'Potato_healthy', 'Raspberry_healthy', 'Soybean__healthy',
+        'Squash__Powdery_mildew', 'Strawberry_Leaf_scorch', 'Strawberry_healthy', 'Tomato__Bacterial_spot',
+        'Tomato__Early_blight', 'Tomato_Late_blight', 'Tomato_Leaf_Mold', 'Tomato__Septoria_leaf_spot',
+        'Tomato__Spider_mites Two-spotted_spider_mite', 'Tomato__Target_Spot', 
+        'Tomato__Tomato_Yellow_Leaf_Curl_Virus', 'Tomato_Tomato_mosaic_virus', 'Tomato__healthy'
+    ]
+                    disease_name = class_name[result_index]
+                    st.success(f"🌱 Identified Disease: **{disease_name}**")
+                    st.subheader("📖 Disease Information & Treatment")
+                    disease_info = get_disease_info(disease_name)
+                    st.markdown(f"<div class='text-box'>{disease_info}</div>", unsafe_allow_html=True)
+                else:
+                    st.error("Failed to load the model. Please check the plant type and try again.")
     else:
         st.warning("📌 Please upload or capture an image to proceed.")
