@@ -1,186 +1,267 @@
 import streamlit as st
 import time
-import os
 from PIL import Image
-from app import load_model, model_prediction, get_disease_info  # Import from app.py
+import datetime
+import pandas as pd
+import pathlib
+from utils import load_model, model_prediction, get_disease_info  # Import from utils.py
+from pages.home import load_home_page
+from pages.disease_recognition import load_disease_recognition_page
+from components.sidebar import initialize_sidebar
 
-def load_disease_recognition_page():
-    # Initialize session state for persistence
-    if 'use_camera' not in st.session_state:
-        st.session_state['use_camera'] = False
-    if 'selected_image' not in st.session_state:
-        st.session_state['selected_image'] = None
-    if 'analysis_done' not in st.session_state:
-        st.session_state['analysis_done'] = False
-
-    # Hero Section
+def add_bg_elements():
+    """Add background elements to the page"""
     st.markdown("""
-    <div class="page-transition">
-        <div class="glass-card dr-hero-section">
-            <div class="dr-hero-content">
-                <h1 class="dr-title">AI-Powered Disease Detection</h1>
-                <p class="dr-tagline">Get instant, accurate plant disease diagnosis with our advanced AI technology</p>
-                <div class="dr-stats">
-                    <div class="dr-stat-item">
-                        <div class="dr-stat-number">95%</div>
-                        <div class="dr-stat-label">Accuracy</div>
-                    </div>
-                    <div class="dr-stat-item">
-                        <div class="dr-stat-number">38+</div>
-                        <div class="dr-stat-label">Diseases</div>
-                    </div>
-                    <div class="dr-stat-item">
-                        <div class="dr-stat-number">10K+</div>
-                        <div class="dr-stat-label">Scans</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-
-    # Upload Section
-    st.markdown("""
-        <div class="glass-card dr-upload-section">
-            <div class="dr-upload-container">
-                <div class="dr-upload-header">
-                    <h2>Upload Plant Image</h2>
-                    <p>Drag and drop or click to upload</p>
-                </div>
-    """, unsafe_allow_html=True)
-
-    # Upload Options
-    col1, col2 = st.columns(2)
-    with col1:
-        st.session_state['use_camera'] = st.checkbox("📷 Use Camera", key="dr_camera", value=st.session_state['use_camera'])
-    with col2:
-        st.markdown('<div class="dr-sample-text">or try a sample image</div>', unsafe_allow_html=True)
-
-    # Camera/Upload Interface
-    if st.session_state['use_camera']:
-        camera_image = st.camera_input("", key="dr_camera_input")
-        if camera_image:
-            st.session_state['selected_image'] = camera_image
-    else:
-        uploaded_file = st.file_uploader("", type=["jpg", "jpeg", "png"], key="dr_file_upload")
-        if uploaded_file:
-            st.session_state['selected_image'] = uploaded_file
-
-    st.markdown("</div></div>", unsafe_allow_html=True)
-
-    # Display and Analysis Section
-    if st.session_state['selected_image']:
-        st.markdown('<div class="dr-analysis-section">', unsafe_allow_html=True)
-        
-        # Image Preview
-        st.markdown('<div class="dr-preview-container">', unsafe_allow_html=True)
-        st.image(st.session_state['selected_image'], use_column_width=True, caption="Selected Image")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-        # Plant Type Selection
-        plant_type = st.selectbox("Select Plant Type", ["Tomato", "Potato", "Other"], key="dr_plant_type")
-        
-        # Analysis Button
-        if st.button("🔍 Analyze Image", key="dr_analyze"):
-            with st.spinner("Analyzing image with AI..."):
-                # Load the model
-                model = load_model(plant_type)
-                if model is None:
-                    st.error("Model loading failed. Please try again.")
-                    return
-
-                # Save uploaded image temporarily
-                with open("temp_image.jpg", "wb") as f:
-                    f.write(st.session_state['selected_image'].getvalue())
-
-                # Get prediction
-                result_index, confidence, prediction = model_prediction(model, "temp_image.jpg")
-                if result_index is None:
-                    st.error("Prediction failed. Please try again.")
-                    return
-
-                # Define disease names based on your model (replace with actual class names)
-                disease_names = ["Healthy", "Early Blight", "Late Blight", "Other"]  # Update this list
-                detected_disease = disease_names[result_index]
-
-                # Get disease info
-                disease_info = get_disease_info(detected_disease)
-
-                # Store results in session state
-                st.session_state['analysis_done'] = True
-                st.session_state['detected_disease'] = detected_disease
-                st.session_state['confidence'] = confidence
-                st.session_state['disease_info'] = disease_info
-
-                # Clean up temporary file
-                if os.path.exists("temp_image.jpg"):
-                    os.remove("temp_image.jpg")
-
-        # Display Results if Analysis is Done
-        if st.session_state['analysis_done']:
-            # Dynamically render results using Streamlit components instead of hardcoded HTML
-            st.markdown('<div class="dr-results-container">', unsafe_allow_html=True)
-            
-            # Header with Confidence
-            st.markdown(f"""
-            <div class="dr-result-header">
-                <h2>Analysis Results</h2>
-                <div class="dr-confidence">
-                    <div class="dr-confidence-label">Confidence Score</div>
-                    <div class="dr-confidence-meter">
-                        <div class="dr-confidence-fill" style="width: {st.session_state['confidence']}%;"></div>
-                    </div>
-                    <div class="dr-confidence-value">{st.session_state['confidence']:.1f}%</div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-
-            # Diagnosis Section
-            st.markdown('<div class="dr-diagnosis">', unsafe_allow_html=True)
-            st.markdown("<h3>Detected Disease</h3>", unsafe_allow_html=True)
-            st.markdown(f'<div class="dr-disease-name">{st.session_state["detected_disease"]}</div>', unsafe_allow_html=True)
-            st.markdown('<div class="dr-disease-info">', unsafe_allow_html=True)
-            st.markdown("<h4>About this Disease</h4>", unsafe_allow_html=True)
-            st.markdown(f'<p>{st.session_state["disease_info"]}</p>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-            st.markdown('</div>', unsafe_allow_html=True)
-
-            # Action Buttons
-            st.markdown('<div class="dr-actions">', unsafe_allow_html=True)
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                if st.button("📋 View Detailed Report", key="dr_report"):
-                    st.write(st.session_state['disease_info'])
-            with col2:
-                if st.button("🔄 Try Another Image", key="dr_reset"):
-                    st.session_state['selected_image'] = None
-                    st.session_state['analysis_done'] = False
-                    st.experimental_rerun()
-            with col3:
-                if st.button("💬 Consult Expert", key="dr_consult"):
-                    st.write("Contact our experts at support@plantcare.in or call 1800-XXX-XXXX")
-            st.markdown('</div>', unsafe_allow_html=True)
-
-            st.markdown('</div>', unsafe_allow_html=True)
-
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # Quick Tips Section
-    st.markdown("""
-    <div class="dr-tips-section">
-        <h3>📸 Tips for Better Results</h3>
-        <div class="dr-tips-container">
-            <div class="dr-tip-card">
-                <div class="dr-tip-icon">🎯</div>
-                <div class="dr-tip-text">Focus on affected area</div>
-            </div>
-            <div class="dr-tip-card">
-                <div class="dr-tip-icon">☀️</div>
-                <div class="dr-tip-text">Good lighting</div>
-            </div>
-            <div class="dr-tip-card">
-                <div class="dr-tip-icon">📏</div>
-                <div class="dr-tip-text">Close-up shot</div>
-            </div>
-        </div>
+    <div class="page-overlay"></div>
+    <div class="particles">
+        <div class="particle" style="left: 10%; top: 20%; width: 8px; height: 8px;"></div>
+        <div class="particle" style="left: 20%; top: 60%; width: 12px; height: 12px;"></div>
+        <div class="particle" style="left: 50%; top: 30%; width: 10px; height: 10px;"></div>
+        <div class="particle" style="left: 70%; top: 70%; width: 15px; height: 15px;"></div>
+        <div class="particle" style="left: 80%; top: 20%; width: 6px; height: 6px;"></div>
+        <div class="particle" style="left: 30%; top: 80%; width: 9px; height: 9px;"></div>
     </div>
     """, unsafe_allow_html=True)
+
+def load_css():
+    """Load and apply CSS styles"""
+    css_files = [
+        pathlib.Path(__file__).parent / 'static' / 'background_styles.css',
+        pathlib.Path(__file__).parent / 'static' / 'styles.css',
+        pathlib.Path(__file__).parent / 'static' / 'home_styles.css',
+        pathlib.Path(__file__).parent / 'static' / 'disease_recognition_styles.css',
+        pathlib.Path(__file__).parent / 'static' / 'sidebar_styles.css'
+    ]
+    
+    for css_file in css_files:
+        try:
+            with open(css_file) as f:
+                st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+        except FileNotFoundError:
+            st.error(f"CSS file not found: {css_file}")
+
+def initialize_app():
+    load_css()
+    add_bg_elements()
+
+def render_feedback_support():
+    st.markdown('<div class="header fade-in">📢 Feedback & Support Center</div>', unsafe_allow_html=True)
+    
+    feedback_tab, support_tab, survey_tab, collaboration_tab = st.tabs([
+        "Submit Feedback", "Get Support", "User Survey", "Collaboration"
+    ])
+    
+    with feedback_tab:
+        render_feedback_form()
+    
+    with support_tab:
+        render_support_section()
+    
+    with survey_tab:
+        render_survey_form()
+    
+    with collaboration_tab:
+        render_collaboration_form()
+
+def render_feedback_form():
+    st.markdown("""
+    <div class="about-section fade-in">
+        <h2>🌟 Share Your Experience</h2>
+        <p>Your feedback helps us improve and serve farmers better across the nation.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    feedback_form = st.form("feedback_form")
+    with feedback_form:
+        user_type = st.selectbox(
+            "I am a:",
+            ["Farmer", "Agricultural Expert", "Researcher", "Student", "Other"]
+        )
+        
+        state = st.selectbox(
+            "State:",
+            ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", 
+             "Chhattisgarh", "Goa", "Gujarat", "Haryana", "Himachal Pradesh",
+             "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", 
+             "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland",
+             "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
+             "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand",
+             "West Bengal"]
+        )
+        
+        rating = st.slider("How would you rate our service?", 1, 5, 5)
+        
+        feedback_categories = st.multiselect(
+            "What aspects would you like to provide feedback on?",
+            ["Disease Detection Accuracy", "User Interface", "Speed",
+             "Treatment Recommendations", "Mobile Experience",
+             "Local Language Support", "Other"]
+        )
+        
+        detailed_feedback = st.text_area("Your Detailed Feedback")
+        
+        if st.form_submit_button("Submit Feedback"):
+            st.success("Thank you for your valuable feedback! Your input helps us serve farmers better across India.")
+
+def render_support_section():
+    st.markdown("""
+    <div class="about-section fade-in">
+        <h2>🆘 Get Support</h2>
+        <p>Need help? We're here to support you.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    support_type = st.selectbox(
+        "What kind of support do you need?",
+        ["Technical Support", "Disease Identification Help", "App Usage Guide",
+         "Regional Language Support", "Other"]
+    )
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown("""
+        <div class="about-section">
+            <h3>📞 Helpline Numbers</h3>
+            <ul>
+                <li>Technical Support: 1800-XXX-XXXX</li>
+                <li>Agricultural Expert: 1800-XXX-XXXX</li>
+                <li>24x7 Support: 1800-XXX-XXXX</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div class="about-section">
+            <h3>📧 Email Support</h3>
+            <ul>
+                <li>Technical: support@plantcare.in</li>
+                <li>General: info@plantcare.in</li>
+                <li>Collaboration: partner@plantcare.in</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
+def render_survey_form():
+    st.markdown("""
+    <div class="about-section fade-in">
+        <h2>📊 Agricultural Survey</h2>
+        <p>Help us understand the agricultural landscape better.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    survey_form = st.form("survey_form")
+    with survey_form:
+        farm_size = st.selectbox(
+            "Farm Size (in acres)",
+            ["Less than 1", "1-5", "5-10", "10-20", "More than 20"]
+        )
+        
+        crops = st.multiselect(
+            "What crops do you primarily grow?",
+            ["Rice", "Wheat", "Cotton", "Sugarcane", "Pulses",
+             "Vegetables", "Fruits", "Other"]
+        )
+        
+        challenges = st.multiselect(
+            "What are your biggest challenges?",
+            ["Plant Diseases", "Weather", "Water Supply", "Market Prices",
+             "Labor", "Technology Adoption", "Other"]
+        )
+        
+        tech_usage = st.select_slider(
+            "How comfortable are you with agricultural technology?",
+            options=["Beginner", "Intermediate", "Advanced", "Expert"]
+        )
+        
+        if st.form_submit_button("Submit Survey"):
+            st.success("Thank you for participating in our survey! Your insights will help shape the future of Indian agriculture.")
+
+def render_collaboration_form():
+    st.markdown("""
+    <div class="about-section fade-in">
+        <h2>🤝 Collaboration Opportunities</h2>
+        <p>Partner with us in revolutionizing Indian agriculture.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    partner_type = st.selectbox(
+        "Partnership Category",
+        ["Agricultural Institution", "Research Organization", "Government Body",
+         "NGO", "Private Company", "Educational Institution", "Other"]
+    )
+    
+    collab_form = st.form("collaboration_form")
+    with collab_form:
+        organization = st.text_input("Organization Name")
+        contact_person = st.text_input("Contact Person")
+        email = st.text_input("Official Email")
+        phone = st.text_input("Contact Number")
+        
+        collaboration_interest = st.multiselect(
+            "Areas of Interest",
+            ["Research Partnership", "Data Sharing", "Technology Integration",
+             "Field Testing", "Training Programs", "Funding", "Other"]
+        )
+        
+        proposal = st.text_area("Brief Proposal")
+        
+        if st.form_submit_button("Submit Proposal"):
+            st.success("Thank you for your interest in collaboration! Our team will contact you soon.")
+
+def render_about_page():
+    st.markdown('<div class="header fade-in">📖 About Our Project</div>', unsafe_allow_html=True)
+    
+    st.markdown("""
+    <div class="about-section fade-in">
+        <h2>🎯 Project Overview</h2>
+        <p>Our Plant Disease Recognition System leverages cutting-edge AI technology to help farmers and gardeners 
+        identify plant diseases quickly and accurately. This project aims to revolutionize agricultural practices 
+        by making disease detection accessible to everyone.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown('<h2 class="fade-in">📊 Dataset Statistics</h2>', unsafe_allow_html=True)
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        <div class="stats-box fade-in">
+        """, unsafe_allow_html=True)
+
+def main():
+    initialize_app()
+    initialize_sidebar()
+    
+    # Initialize session state for page persistence
+    if 'app_mode' not in st.session_state:
+        st.session_state['app_mode'] = "Home"
+
+    # Navigation handling
+    with st.sidebar:
+        st.markdown('<div class="sidebar-header">Navigation</div>', unsafe_allow_html=True)
+        
+        pages = ["Home", "Disease Recognition", "About", "Feedback & Support"]
+        icons = {
+            "Home": "🏠",
+            "Disease Recognition": "🔍",
+            "About": "ℹ️",
+            "Feedback & Support": "📝"
+        }
+        
+        for page in pages:
+            if st.sidebar.button(f"{icons[page]} {page}", key=page, use_container_width=True):
+                st.session_state['app_mode'] = page
+
+    # Page routing
+    if st.session_state['app_mode'] == "Home":
+        load_home_page()
+    elif st.session_state['app_mode'] == "Disease Recognition":
+        load_disease_recognition_page()
+    elif st.session_state['app_mode'] == "About":
+        render_about_page()
+    elif st.session_state['app_mode'] == "Feedback & Support":
+        render_feedback_support()
+
+if __name__ == "__main__":
+    main()
