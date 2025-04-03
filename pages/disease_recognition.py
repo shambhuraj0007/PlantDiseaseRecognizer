@@ -2,7 +2,7 @@ import streamlit as st
 import time
 import os
 from PIL import Image
-from app import load_model, model_prediction, get_disease_info  # Import from app.py
+from utils import load_model, model_prediction, get_disease_info  # Import from utils.py
 
 def load_disease_recognition_page():
     # Initialize session state for persistence
@@ -98,62 +98,54 @@ def load_disease_recognition_page():
                     st.error("Prediction failed. Please try again.")
                     return
 
-                # Mock disease names (replace with your actual class names)
-                disease_names = ["Healthy", "Early Blight", "Late Blight", "Other"]
+                # Define disease names based on your model (replace with actual class names)
+                disease_names = ["Healthy", "Early Blight", "Late Blight", "Other"]  # Update this list
                 detected_disease = disease_names[result_index]
 
                 # Get disease info
                 disease_info = get_disease_info(detected_disease)
 
-                # Mark analysis as done
+                # Store results in session state
                 st.session_state['analysis_done'] = True
                 st.session_state['detected_disease'] = detected_disease
                 st.session_state['confidence'] = confidence
                 st.session_state['disease_info'] = disease_info
 
-                # Clean up
+                # Clean up temporary file
                 if os.path.exists("temp_image.jpg"):
                     os.remove("temp_image.jpg")
 
-        # Show results if analysis is done
-        if st.session_state.get('analysis_done', False):
+        # Display Results if Analysis is Done
+        if st.session_state['analysis_done']:
+            # Dynamically render results using Streamlit components
+            st.markdown('<div class="dr-results-container">', unsafe_allow_html=True)
+            
+            # Header with Confidence
             st.markdown(f"""
-            <div class="dr-results-container">
-                <div class="dr-result-header">
-                    <h2>Analysis Results</h2>
-                    <div class="dr-confidence">
-                        <div class="dr-confidence-label">Confidence Score</div>
-                        <div class="dr-confidence-meter">
-                            <div class="dr-confidence-fill" style="width: {st.session_state['confidence']}%;"></div>
-                        </div>
-                        <div class="dr-confidence-value">{st.session_state['confidence']:.1f}%</div>
+            <div class="dr-result-header">
+                <h2>Analysis Results</h2>
+                <div class="dr-confidence">
+                    <div class="dr-confidence-label">Confidence Score</div>
+                    <div class="dr-confidence-meter">
+                        <div class="dr-confidence-fill" style="width: {st.session_state['confidence']}%;"></div>
                     </div>
-                </div>
-                
-                <div class="dr-diagnosis">
-                    <h3>Detected Disease</h3>
-                    <div class="dr-disease-name">{st.session_state['detected_disease']}</div>
-                    <div class="dr-disease-info">
-                        <h4>About this Disease</h4>
-                        <p>{st.session_state['disease_info']}</p>
-                    </div>
-                </div>
-
-                <div class="dr-actions">
-                    <button class="dr-action-button primary">
-                        <span>📋 View Detailed Report</span>
-                    </button>
-                    <button class="dr-action-button secondary">
-                        <span>🔄 Try Another Image</span>
-                    </button>
-                    <button class="dr-action-button tertiary">
-                        <span>💬 Consult Expert</span>
-                    </button>
+                    <div class="dr-confidence-value">{st.session_state['confidence']:.1f}%</div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
 
+            # Diagnosis Section
+            st.markdown('<div class="dr-diagnosis">', unsafe_allow_html=True)
+            st.markdown("<h3>Detected Disease</h3>", unsafe_allow_html=True)
+            st.markdown(f'<div class="dr-disease-name">{st.session_state["detected_disease"]}</div>', unsafe_allow_html=True)
+            st.markdown('<div class="dr-disease-info">', unsafe_allow_html=True)
+            st.markdown("<h4>About this Disease</h4>", unsafe_allow_html=True)
+            st.markdown(f'<p>{st.session_state["disease_info"]}</p>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+
             # Action Buttons
+            st.markdown('<div class="dr-actions">', unsafe_allow_html=True)
             col1, col2, col3 = st.columns(3)
             with col1:
                 if st.button("📋 View Detailed Report", key="dr_report"):
@@ -166,6 +158,9 @@ def load_disease_recognition_page():
             with col3:
                 if st.button("💬 Consult Expert", key="dr_consult"):
                     st.write("Contact our experts at support@plantcare.in or call 1800-XXX-XXXX")
+            st.markdown('</div>', unsafe_allow_html=True)
+
+            st.markdown('</div>', unsafe_allow_html=True)
 
         st.markdown('</div>', unsafe_allow_html=True)
 
