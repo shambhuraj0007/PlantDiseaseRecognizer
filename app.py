@@ -13,8 +13,8 @@ from pages.home import load_home_page
 from pages.disease_recognition import load_disease_recognition_page
 from components.sidebar import initialize_sidebar
 
-# Configure Gemini API Key
-genai.configure(api_key="AIzaSyAFVkuNLacQo8Z1ihcd3e6dHq3PICOvTRg") 
+# Configure Gemini API Key (consider using environment variables in production)
+genai.configure(api_key="AIzaSyAFVkuNLacQo8Z1ihcd3e6dHq3PICOvTRg")
 
 def add_bg_elements():
     """Add background elements to the page"""
@@ -47,17 +47,15 @@ def load_css():
         except FileNotFoundError:
             st.error(f"CSS file not found: {css_file}")
 
-# Initialize CSS and background
 def initialize_app():
     load_css()
     add_bg_elements()
 
-# Function to load the model
 @st.cache_resource
 def load_model(plant_type):
     try:
         if plant_type == "Other":
-            file_id = "1BRBQX4bC3acTwlAwbWqzQ64YzpT5KMrz"  
+            file_id = "1BRBQX4bC3acTwlAwbWqzQ64YzpT5KMrz"
             url = f"https://drive.google.com/uc?id={file_id}"
             model_path = "trained_model.h5"
             gdown.download(url, model_path, quiet=False)
@@ -69,7 +67,6 @@ def load_model(plant_type):
         st.error(f"Error loading model: {e}")
         return None
 
-# Function for prediction
 def model_prediction(model, test_image):
     try:
         image = tf.keras.preprocessing.image.load_img(test_image, target_size=(128, 128))
@@ -83,7 +80,6 @@ def model_prediction(model, test_image):
         st.error(f"Error during prediction: {e}")
         return None, None, None
 
-# Function to get disease info
 def get_disease_info(disease_name):
     prompt = f"""
     Provide detailed information about the plant disease '{disease_name}', including:
@@ -270,7 +266,6 @@ def render_collaboration_form():
 def render_about_page():
     st.markdown('<div class="header fade-in">📖 About Our Project</div>', unsafe_allow_html=True)
     
-    # Project Overview Section
     st.markdown("""
     <div class="about-section fade-in">
         <h2>🎯 Project Overview</h2>
@@ -280,7 +275,6 @@ def render_about_page():
     </div>
     """, unsafe_allow_html=True)
     
-    # Dataset Statistics with Animation
     st.markdown('<h2 class="fade-in">📊 Dataset Statistics</h2>', unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
     
@@ -293,35 +287,34 @@ def main():
     initialize_app()
     initialize_sidebar()
     
+    # Initialize session state for page persistence
+    if 'app_mode' not in st.session_state:
+        st.session_state['app_mode'] = "Home"
+
     # Navigation handling
     with st.sidebar:
         st.markdown('<div class="sidebar-header">Navigation</div>', unsafe_allow_html=True)
         
         pages = ["Home", "Disease Recognition", "About", "Feedback & Support"]
-        app_mode = None
+        icons = {
+            "Home": "🏠",
+            "Disease Recognition": "🔍",
+            "About": "ℹ️",
+            "Feedback & Support": "📝"
+        }
         
         for page in pages:
-            icon = {
-                "Home": "🏠",
-                "Disease Recognition": "🔍",
-                "About": "ℹ️",
-                "Feedback & Support": "📝"
-            }[page]
-            
-            if st.sidebar.button(f"{icon} {page}", key=page, use_container_width=True):
-                app_mode = page
-        
-        if app_mode is None:
-            app_mode = "Home"
+            if st.sidebar.button(f"{icons[page]} {page}", key=page, use_container_width=True):
+                st.session_state['app_mode'] = page
 
     # Page routing
-    if app_mode == "Home":
+    if st.session_state['app_mode'] == "Home":
         load_home_page()
-    elif app_mode == "Disease Recognition":
+    elif st.session_state['app_mode'] == "Disease Recognition":
         load_disease_recognition_page()
-    elif app_mode == "About":
+    elif st.session_state['app_mode'] == "About":
         render_about_page()
-    elif app_mode == "Feedback & Support":
+    elif st.session_state['app_mode'] == "Feedback & Support":
         render_feedback_support()
 
 if __name__ == "__main__":
