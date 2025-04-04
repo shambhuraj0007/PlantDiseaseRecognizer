@@ -96,6 +96,7 @@ def load_disease_recognition_page():
 
                     # Save uploaded image temporarily with unique name
                     temp_image_path = os.path.join(temp_dir, f"temp_image_{time.time()}.jpg")
+                    
                     try:
                         # Convert image to RGB if needed
                         image = Image.open(st.session_state['selected_image'])
@@ -109,24 +110,39 @@ def load_disease_recognition_page():
                             st.error("Prediction failed. Please try again.")
                             return
 
-                        # Define disease names based on your model
-                        disease_names = [
-                            'Apple__Apple_scab', 'Apple_Black_rot', 'Apple_Cedar_apple_rust', 'Apple__healthy',
-                            'Blueberry__healthy', 'Cherry(including_sour)___Powdery_mildew', 
-                            'Cherry_(including_sour)__healthy', 'Corn(maize)___Cercospora_leaf_spot Gray_leaf_spot',
-                            'Corn_(maize)__Common_rust', 'Corn_(maize)__Northern_Leaf_Blight', 'Corn(maize)___healthy',
-                            'Grape__Black_rot', 'Grape_Esca(Black_Measles)', 'Grape__Leaf_blight(Isariopsis_Leaf_Spot)',
-                            'Grape__healthy', 'Orange_Haunglongbing(Citrus_greening)', 'Peach___Bacterial_spot',
-                            'Peach__healthy', 'Pepper,_bell_Bacterial_spot', 'Pepper,_bell_healthy', 'Potato__Early_blight',
-                            'Potato__Late_blight', 'Potato_healthy', 'Raspberry_healthy', 'Soybean__healthy',
-                            'Squash__Powdery_mildew', 'Strawberry_Leaf_scorch', 'Strawberry_healthy', 'Tomato__Bacterial_spot',
-                            'Tomato__Early_blight', 'Tomato_Late_blight', 'Tomato_Leaf_Mold', 'Tomato__Septoria_leaf_spot',
-                            'Tomato__Spider_mites Two-spotted_spider_mite', 'Tomato__Target_Spot', 
-                            'Tomato__Tomato_Yellow_Leaf_Curl_Virus', 'Tomato_Tomato_mosaic_virus', 'Tomato__healthy'
-                        ]
+                        # Define disease names based on plant type
+                        if plant_type == "Tomato":
+                            disease_names = [
+                                'Tomato__Bacterial_spot', 'Tomato__Early_blight', 'Tomato_Late_blight',
+                                'Tomato_Leaf_Mold', 'Tomato__Septoria_leaf_spot',
+                                'Tomato__Spider_mites Two-spotted_spider_mite', 'Tomato__Target_Spot',
+                                'Tomato__Tomato_Yellow_Leaf_Curl_Virus', 'Tomato_Tomato_mosaic_virus',
+                                'Tomato__healthy'
+                            ]
+                        elif plant_type == "Potato":
+                            disease_names = [
+                                'Potato__Early_blight', 'Potato__Late_blight', 'Potato_healthy'
+                            ]
+                        else:
+                            disease_names = [
+                                'Apple__Apple_scab', 'Apple_Black_rot', 'Apple_Cedar_apple_rust',
+                                'Apple__healthy', 'Blueberry__healthy',
+                                'Cherry(including_sour)___Powdery_mildew',
+                                'Cherry_(including_sour)__healthy',
+                                'Corn(maize)___Cercospora_leaf_spot Gray_leaf_spot',
+                                'Corn_(maize)__Common_rust', 'Corn_(maize)__Northern_Leaf_Blight',
+                                'Corn(maize)___healthy', 'Grape__Black_rot',
+                                'Grape_Esca(Black_Measles)',
+                                'Grape__Leaf_blight(Isariopsis_Leaf_Spot)', 'Grape__healthy',
+                                'Orange_Haunglongbing(Citrus_greening)', 'Peach___Bacterial_spot',
+                                'Peach__healthy', 'Pepper,_bell_Bacterial_spot',
+                                'Pepper,_bell_healthy', 'Raspberry_healthy', 'Soybean__healthy',
+                                'Squash__Powdery_mildew', 'Strawberry_Leaf_scorch',
+                                'Strawberry_healthy'
+                            ]
 
                         if result_index >= len(disease_names):
-                            st.error("Invalid prediction result. Please try again.")
+                            st.error(f"Invalid prediction result: {result_index}. Expected index less than {len(disease_names)}")
                             return
 
                         detected_disease = disease_names[result_index]
@@ -140,11 +156,17 @@ def load_disease_recognition_page():
                         st.session_state['confidence'] = confidence
                         st.session_state['disease_info'] = disease_info
 
+                    except Exception as e:
+                        st.error(f"Error processing image: {str(e)}")
+                        st.session_state['analysis_done'] = False
                     finally:
                         # Clean up temporary file
                         if os.path.exists(temp_image_path):
-                            os.remove(temp_image_path)
-                        
+                            try:
+                                os.remove(temp_image_path)
+                            except:
+                                pass
+
             except Exception as e:
                 st.error(f"An error occurred during analysis: {str(e)}")
                 st.session_state['analysis_done'] = False
