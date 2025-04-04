@@ -81,52 +81,73 @@ def load_disease_recognition_page():
         
         # Analysis Button
         if st.button("🔍 Analyze Image", key="dr_analyze"):
-            with st.spinner("Analyzing image with AI..."):
-                # Load the model
-                model = load_model(plant_type)
-                if model is None:
-                    st.error("Model loading failed. Please try again.")
-                    return
+            try:
+                with st.spinner("Analyzing image with AI..."):
+                    # Load the model
+                    model = load_model(plant_type)
+                    if model is None:
+                        st.error("Model loading failed. Please try again.")
+                        return
 
-                # Save uploaded image temporarily
-                with open("temp_image.jpg", "wb") as f:
-                    f.write(st.session_state['selected_image'].getvalue())
+                    # Create temp directory if it doesn't exist
+                    temp_dir = "temp"
+                    if not os.path.exists(temp_dir):
+                        os.makedirs(temp_dir)
 
-                # Get prediction
-                result_index, confidence, prediction = model_prediction(model, "temp_image.jpg")
-                if result_index is None:
-                    st.error("Prediction failed. Please try again.")
-                    return
+                    # Save uploaded image temporarily with unique name
+                    temp_image_path = os.path.join(temp_dir, f"temp_image_{time.time()}.jpg")
+                    try:
+                        # Convert image to RGB if needed
+                        image = Image.open(st.session_state['selected_image'])
+                        if image.mode != 'RGB':
+                            image = image.convert('RGB')
+                        image.save(temp_image_path)
 
-                # Define disease names based on your model (replace with actual class names)
-                disease_names =  [
-        'Apple__Apple_scab', 'Apple_Black_rot', 'Apple_Cedar_apple_rust', 'Apple__healthy',
-        'Blueberry__healthy', 'Cherry(including_sour)___Powdery_mildew', 
-        'Cherry_(including_sour)__healthy', 'Corn(maize)___Cercospora_leaf_spot Gray_leaf_spot',
-        'Corn_(maize)__Common_rust', 'Corn_(maize)__Northern_Leaf_Blight', 'Corn(maize)___healthy',
-        'Grape__Black_rot', 'Grape_Esca(Black_Measles)', 'Grape__Leaf_blight(Isariopsis_Leaf_Spot)',
-        'Grape__healthy', 'Orange_Haunglongbing(Citrus_greening)', 'Peach___Bacterial_spot',
-        'Peach__healthy', 'Pepper,_bell_Bacterial_spot', 'Pepper,_bell_healthy', 'Potato__Early_blight',
-        'Potato__Late_blight', 'Potato_healthy', 'Raspberry_healthy', 'Soybean__healthy',
-        'Squash__Powdery_mildew', 'Strawberry_Leaf_scorch', 'Strawberry_healthy', 'Tomato__Bacterial_spot',
-        'Tomato__Early_blight', 'Tomato_Late_blight', 'Tomato_Leaf_Mold', 'Tomato__Septoria_leaf_spot',
-        'Tomato__Spider_mites Two-spotted_spider_mite', 'Tomato__Target_Spot', 
-        'Tomato__Tomato_Yellow_Leaf_Curl_Virus', 'Tomato_Tomato_mosaic_virus', 'Tomato__healthy'
-    ]
-                detected_disease = disease_names[result_index]
+                        # Get prediction
+                        result_index, confidence, prediction = model_prediction(model, temp_image_path)
+                        if result_index is None:
+                            st.error("Prediction failed. Please try again.")
+                            return
 
-                # Get disease info
-                disease_info = get_disease_info(detected_disease)
+                        # Define disease names based on your model
+                        disease_names = [
+                            'Apple__Apple_scab', 'Apple_Black_rot', 'Apple_Cedar_apple_rust', 'Apple__healthy',
+                            'Blueberry__healthy', 'Cherry(including_sour)___Powdery_mildew', 
+                            'Cherry_(including_sour)__healthy', 'Corn(maize)___Cercospora_leaf_spot Gray_leaf_spot',
+                            'Corn_(maize)__Common_rust', 'Corn_(maize)__Northern_Leaf_Blight', 'Corn(maize)___healthy',
+                            'Grape__Black_rot', 'Grape_Esca(Black_Measles)', 'Grape__Leaf_blight(Isariopsis_Leaf_Spot)',
+                            'Grape__healthy', 'Orange_Haunglongbing(Citrus_greening)', 'Peach___Bacterial_spot',
+                            'Peach__healthy', 'Pepper,_bell_Bacterial_spot', 'Pepper,_bell_healthy', 'Potato__Early_blight',
+                            'Potato__Late_blight', 'Potato_healthy', 'Raspberry_healthy', 'Soybean__healthy',
+                            'Squash__Powdery_mildew', 'Strawberry_Leaf_scorch', 'Strawberry_healthy', 'Tomato__Bacterial_spot',
+                            'Tomato__Early_blight', 'Tomato_Late_blight', 'Tomato_Leaf_Mold', 'Tomato__Septoria_leaf_spot',
+                            'Tomato__Spider_mites Two-spotted_spider_mite', 'Tomato__Target_Spot', 
+                            'Tomato__Tomato_Yellow_Leaf_Curl_Virus', 'Tomato_Tomato_mosaic_virus', 'Tomato__healthy'
+                        ]
 
-                # Store results in session state
-                st.session_state['analysis_done'] = True
-                st.session_state['detected_disease'] = detected_disease
-                st.session_state['confidence'] = confidence
-                st.session_state['disease_info'] = disease_info
+                        if result_index >= len(disease_names):
+                            st.error("Invalid prediction result. Please try again.")
+                            return
 
-                # Clean up temporary file
-                if os.path.exists("temp_image.jpg"):
-                    os.remove("temp_image.jpg")
+                        detected_disease = disease_names[result_index]
+
+                        # Get disease info
+                        disease_info = get_disease_info(detected_disease)
+
+                        # Store results in session state
+                        st.session_state['analysis_done'] = True
+                        st.session_state['detected_disease'] = detected_disease
+                        st.session_state['confidence'] = confidence
+                        st.session_state['disease_info'] = disease_info
+
+                    finally:
+                        # Clean up temporary file
+                        if os.path.exists(temp_image_path):
+                            os.remove(temp_image_path)
+                        
+            except Exception as e:
+                st.error(f"An error occurred during analysis: {str(e)}")
+                st.session_state['analysis_done'] = False
 
         # Display Results if Analysis is Done
         if st.session_state['analysis_done']:
