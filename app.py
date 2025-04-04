@@ -4,7 +4,13 @@ from PIL import Image
 import datetime
 import pandas as pd
 import pathlib
-from utils import load_model, model_prediction, get_disease_info  # Import from utils.py
+import sys
+import os
+
+# Add the current directory to Python path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from utils import load_model, model_prediction, get_disease_info
 from pages.home import load_home_page
 from pages.disease_recognition import load_disease_recognition_page
 from components.sidebar import initialize_sidebar
