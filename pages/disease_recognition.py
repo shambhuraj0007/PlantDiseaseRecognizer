@@ -99,7 +99,20 @@ def load_disease_recognition_page():
                     return
 
                 # Define disease names based on your model (replace with actual class names)
-                disease_names = ["Healthy", "Early Blight", "Late Blight", "Other"]  # Update this list
+                disease_names =  [
+        'Apple__Apple_scab', 'Apple_Black_rot', 'Apple_Cedar_apple_rust', 'Apple__healthy',
+        'Blueberry__healthy', 'Cherry(including_sour)___Powdery_mildew', 
+        'Cherry_(including_sour)__healthy', 'Corn(maize)___Cercospora_leaf_spot Gray_leaf_spot',
+        'Corn_(maize)__Common_rust', 'Corn_(maize)__Northern_Leaf_Blight', 'Corn(maize)___healthy',
+        'Grape__Black_rot', 'Grape_Esca(Black_Measles)', 'Grape__Leaf_blight(Isariopsis_Leaf_Spot)',
+        'Grape__healthy', 'Orange_Haunglongbing(Citrus_greening)', 'Peach___Bacterial_spot',
+        'Peach__healthy', 'Pepper,_bell_Bacterial_spot', 'Pepper,_bell_healthy', 'Potato__Early_blight',
+        'Potato__Late_blight', 'Potato_healthy', 'Raspberry_healthy', 'Soybean__healthy',
+        'Squash__Powdery_mildew', 'Strawberry_Leaf_scorch', 'Strawberry_healthy', 'Tomato__Bacterial_spot',
+        'Tomato__Early_blight', 'Tomato_Late_blight', 'Tomato_Leaf_Mold', 'Tomato__Septoria_leaf_spot',
+        'Tomato__Spider_mites Two-spotted_spider_mite', 'Tomato__Target_Spot', 
+        'Tomato__Tomato_Yellow_Leaf_Curl_Virus', 'Tomato_Tomato_mosaic_virus', 'Tomato__healthy'
+    ]
                 detected_disease = disease_names[result_index]
 
                 # Get disease info
