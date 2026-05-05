@@ -233,6 +233,25 @@ def render_about_page():
     with col1:
         st.markdown("""
         <div class="stats-box fade-in">
+            <h3>38+</h3>
+            <p>Plant Diseases</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col2:
+        st.markdown("""
+        <div class="stats-box fade-in">
+            <h3>95%</h3>
+            <p>Accuracy</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col3:
+        st.markdown("""
+        <div class="stats-box fade-in">
+            <h3>14</h3>
+            <p>Crop Types</p>
+        </div>
         """, unsafe_allow_html=True)
 
 def main():

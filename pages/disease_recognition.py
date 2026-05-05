@@ -89,10 +89,8 @@ def load_disease_recognition_page():
                         st.error("Model loading failed. Please try again.")
                         return
 
-                    # Create temp directory if it doesn't exist
-                    temp_dir = "temp"
-                    if not os.path.exists(temp_dir):
-                        os.makedirs(temp_dir)
+                    import tempfile
+                    temp_dir = tempfile.gettempdir()
 
                     # Save uploaded image temporarily with unique name
                     temp_image_path = os.path.join(temp_dir, f"temp_image_{time.time()}.jpg")
@@ -210,7 +208,7 @@ def load_disease_recognition_page():
                 if st.button("🔄 Try Another Image", key="dr_reset"):
                     st.session_state['selected_image'] = None
                     st.session_state['analysis_done'] = False
-                    st.experimental_rerun()
+                    st.rerun()
             with col3:
                 if st.button("💬 Consult Expert", key="dr_consult"):
                     st.write("Contact our experts at support@plantcare.in or call 1800-XXX-XXXX")

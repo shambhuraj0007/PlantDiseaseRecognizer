@@ -10,19 +10,25 @@ genai.configure(api_key="AIzaSyAFVkuNLacQo8Z1ihcd3e6dHq3PICOvTRg")
 
 @st.cache_resource
 def load_model(plant_type):
+    import tempfile
     try:
         if plant_type == "Other":
             file_id = "1BRBQX4bC3acTwlAwbWqzQ64YzpT5KMrz"
             url = f"https://drive.google.com/uc?id={file_id}"
-            model_path = "trained_model.h5"
+            model_path = os.path.join(tempfile.gettempdir(), "trained_model.h5")
             if not os.path.exists(model_path):
                 st.info("Downloading model... This may take a moment.")
                 gdown.download(url, model_path, quiet=False)
         else:
-            model_path = f"{plant_type.lower()}_model.h5"
+            model_path = os.path.join(tempfile.gettempdir(), f"{plant_type.lower()}_model.h5")
             if not os.path.exists(model_path):
-                st.error(f"Model file not found: {model_path}")
-                return None
+                # If local model doesn't exist in tmp, check if it exists in the app directory
+                local_path = f"{plant_type.lower()}_model.h5"
+                if os.path.exists(local_path):
+                    model_path = local_path
+                else:
+                    st.error(f"Model file not found: {model_path}")
+                    return None
         
         st.info("Loading model...")
         model = tf.keras.models.load_model(model_path, compile=False)
