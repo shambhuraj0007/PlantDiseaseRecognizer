@@ -11,8 +11,8 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from utils import load_model, model_prediction, get_disease_info
-from pages.home import load_home_page
-from pages.disease_recognition import load_disease_recognition_page
+from views.home import load_home_page
+from views.disease_recognition import load_disease_recognition_page
 from components.sidebar import initialize_sidebar
 
 def add_bg_elements():
@@ -264,7 +264,7 @@ def main():
 
     # Navigation handling
     with st.sidebar:
-        st.markdown('<div class="sidebar-header">Navigation</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-title" style="background: #0d47a1; color: white; padding: 10px; border-radius: 5px; font-weight: bold; text-align: center; margin-bottom: 20px;">Plant Disease Detection</div>', unsafe_allow_html=True)
         
         pages = ["Home", "Disease Recognition", "About", "Feedback & Support"]
         icons = {

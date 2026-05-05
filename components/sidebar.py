@@ -47,26 +47,7 @@ def initialize_sidebar():
         </style>
     """, unsafe_allow_html=True)
 
-    # Create sidebar navigation
-    with st.sidebar:
-        st.markdown('<div class="sidebar-title">Plant Disease Detection</div>', unsafe_allow_html=True)
-        
-        # Navigation links with icons
-        nav_items = {
-            "Home": "🏠",
-            "Disease Recognition": "🔍",
-            "About": "ℹ️",
-            "Feedback & Support": "📝"
-        }
 
-        for page, icon in nav_items.items():
-            active_class = "active" if st.session_state.get("page") == page else ""
-            st.markdown(f"""
-                <a href="?page={page}" class="nav-link {active_class}">
-                    <span class="nav-icon">{icon}</span>
-                    {page}
-                </a>
-            """, unsafe_allow_html=True)
 
     st.markdown("""
         <script>
